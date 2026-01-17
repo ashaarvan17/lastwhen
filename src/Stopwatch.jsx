@@ -64,8 +64,8 @@ function formatTime(ms) {
 return ( <div>
     <div className='stopWatch'>
         <div className="display">
-  <div>Master: {formatTime(masterElapsed)}</div>
-  <div>Segment: {formatTime(segmentElapsed)}</div>
+  <div className='masterTimer'> {formatTime(masterElapsed)}</div>
+  <div className='segment'> {formatTime(segmentElapsed)}</div>
 </div>
         <div className='controls'>
             <button onClick={start}>Start</button>
