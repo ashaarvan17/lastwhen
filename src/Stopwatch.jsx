@@ -2,62 +2,91 @@ import React, {useState , useEffect , useRef} from 'react';
 
 function StopWatch(){
 
-const [isRunning , setIsRunning] = useState(false);
-const [elapsedTime , SetElapsedTime ] = useState(0);
-const intervalIdRef = useRef(null);
-const startTimeRef= useRef(0);
+const [isRunning, setIsRunning] = useState(false);
 
-useEffect(()=>{
-if(isRunning){
-    intervalIdRef.current = setInterval(()=>{
-        SetElapsedTime(Date.now() - startTimeRef.current);
-     } ,10);
-}
+const [masterElapsed, setMasterElapsed] = useState(0);
+const [segmentElapsed, setSegmentElapsed] = useState(0);
 
-return ()=> {
-    clearInterval(intervalIdRef.current);
-}
+const [logs, setLogs] = useState([]);
 
-   },[isRunning]);
+const intervalRef = useRef(null);
+const masterStartRef = useRef(0);
+const segmentStartRef = useRef(0);
+
+useEffect(() => {
+  if (!isRunning) return;
+
+  intervalRef.current = setInterval(() => {
+    const now = Date.now();
+    setMasterElapsed(now - masterStartRef.current);
+    setSegmentElapsed(now - segmentStartRef.current);
+  }, 10);
+
+  return () => clearInterval(intervalRef.current);
+}, [isRunning]);
 
 function start() {
-    setIsRunning(true);
-    startTimeRef.current = Date.now() - elapsedTime;
+  const now = Date.now();
+
+  masterStartRef.current = now - masterElapsed;
+  segmentStartRef.current = now - segmentElapsed;
+
+  setIsRunning(true);
 }
 
 function stop() {
     setIsRunning(false);
 }
 
-function reset() {
-    SetElapsedTime(0);
-    setIsRunning(false);
+function resetSegment() {
+  setLogs(prev => [
+    ...prev,
+    {
+      id: prev.length + 1,
+      segmentDuration: segmentElapsed,
+      masterTimestamp: masterElapsed,
+    }
+  ]);
+
+  setSegmentElapsed(0);
+  segmentStartRef.current = Date.now();
 }
 
-function formatTime() {
-    let hours = Math.floor (elapsedTime/(1000 * 60 * 60));
-    let minutes = Math.floor (elapsedTime/(1000 * 60 ) %60);
-    let seconds = Math.floor (elapsedTime/(1000) %60);
-    let millisec = Math.floor ((elapsedTime % 1000 )/10 );
+function formatTime(ms) {
+  const minutes = Math.floor(ms / 60000);
+  const seconds = Math.floor((ms % 60000) / 1000);
+  const millis = Math.floor((ms % 1000) / 10);
 
-    hours = String(hours).padStart(2, "0");
-    minutes = String(minutes).padStart(2, "0");
-    seconds = String(seconds).padStart(2, "0");
-    millisec = String(millisec).padStart(2, "0");
+  return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}:${String(millis).padStart(2, "0")}`;
+}
 
-return `${hours}:${minutes}:${seconds}:${millisec}`
-} 
 
-return (
+return ( <div>
     <div className='stopWatch'>
-        <div className='display'> {formatTime()}</div>
+        <div className="display">
+  <div>Master: {formatTime(masterElapsed)}</div>
+  <div>Segment: {formatTime(segmentElapsed)}</div>
+</div>
         <div className='controls'>
-            <button onClick={start} className = "Start"> Start </button>
-            <button onClick={stop} className = "Stop"> Stop </button>
-            <button onClick={reset} className = "Reset"> Reset </button>
+            <button onClick={start}>Start</button>
+<button onClick={stop}>Stop</button>
+<button onClick={resetSegment}>Reset</button>
+
              </div>
+             </div> 
+              
+    <div className="resetLogList">
+  <h3>Reset Logs</h3>
+  {logs.map(log => (
+    <div key={log.id} className="resetItem">
+      <strong>{log.id}</strong> |
+      Segment: {formatTime(log.segmentDuration)} |
+      At: {formatTime(log.masterTimestamp)}
     </div>
+  ))}
+</div>
+</div>
 )
 }
 
-export default  StopWatch
+export default StopWatch;
