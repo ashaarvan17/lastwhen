@@ -39,6 +39,8 @@ function stop() {
 }
 
 function resetSegment() {
+
+  if(isRunning){
   setLogs(prev => [
     ...prev,
     {
@@ -49,7 +51,12 @@ function resetSegment() {
   ]);
 
   setSegmentElapsed(0);
-  segmentStartRef.current = Date.now();
+  segmentStartRef.current = Date.now();}
+  else {
+    setIsRunning(false);
+    setMasterElapsed(0)
+    setSegmentElapsed(0)
+  }
 }
 
 function formatTime(ms) {
@@ -60,27 +67,26 @@ function formatTime(ms) {
   return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}:${String(millis).padStart(2, "0")}`;
 }
 
-
-return ( <div>
-    <div className='stopWatch'>
-        <div className="display">
-  <div className='masterTimer'> {formatTime(masterElapsed)}</div>
-  <div className='segment'> {formatTime(segmentElapsed)}</div>
-</div>
-        <div className='controls'>
-            <button onClick={start}>Start</button>
-<button onClick={stop}>Stop</button>
-<button onClick={resetSegment}>Reset</button>
-
-             </div>
-             </div> 
+return ( 
+    <div>
+        <div className='stopWatch'>
+            <div className="display">
+            <div className='masterTimer'> {formatTime(masterElapsed)}</div>
+            <div className='segment'> {formatTime(segmentElapsed)}</div>
+            </div>
+            <div className='controls'>
+                <button onClick={start}>Start</button>
+                <button onClick={stop}>Stop</button>
+                <button onClick={resetSegment}>Reset</button>
+            </div>
+        </div> 
               
-    <div className="resetLogList">
-  <h3>Reset Logs</h3>
-  {logs.map(log => (
+        <div className="resetLogList">
+            <h3>Reset Logs</h3>
+             {logs.map(log => (
     <div key={log.id} className="resetItem">
-      <strong>{log.id}</strong> |
-      Segment: {formatTime(log.segmentDuration)} |
+      <strong>{log.id}</strong> 
+      Segment: {formatTime(log.segmentDuration)} 
       At: {formatTime(log.masterTimestamp)}
     </div>
   ))}
