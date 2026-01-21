@@ -85,9 +85,9 @@ return (
             <h3>Reset Logs</h3>
              {logs.map(log => (
     <div key={log.id} className="resetItem">
-      <strong>{log.id}</strong> 
-      Segment: {formatTime(log.segmentDuration)} 
-      At: {formatTime(log.masterTimestamp)}
+      <div><strong>{log.id}</strong> </div>
+      <div>Segment: {formatTime(log.segmentDuration)} </div>
+      <div>At: {formatTime(log.masterTimestamp)} </div>
     </div>
   ))}
 </div>
